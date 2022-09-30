@@ -1,0 +1,39 @@
+---
+title: "Data"
+author: "Will Brazgel"
+date: "2022-09-30"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(readr)
+library(dplyr)
+```
+
+```{r}
+cumulative22 = read.csv("2022_cumulative.csv")
+```
+
+```{r}
+cumulative22 %>% 
+  distinct(Name, .keep_all = TRUE)
+```
+
+```{r}
+cumulative21 = read.csv("2021_cumulative.csv")
+```
+
+```{r}
+join_21_22 = rbind(cumulative22,cumulative21)
+```
+
+```{r}
+join_21_22 %>% 
+  distinct(Name, .keep_all = TRUE)
+```
+
+
