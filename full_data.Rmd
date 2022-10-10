@@ -36,4 +36,18 @@ join_21_22 %>%
   distinct(Name, .keep_all = TRUE)
 ```
 
+```{r}
+cumulative20 = read.csv("2020_cumulative.csv")
+
+```
+
+```{r}
+join_20_21 = rbind(join_21_22,cumulative20)
+```
+
+
+```{r}
+join_20_21 %>%
+distinct(Name, .keep_all = TRUE)
+```
 
