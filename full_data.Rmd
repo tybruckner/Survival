@@ -98,3 +98,8 @@ joinall$Name = str_replace(joinall$Name,"\xa0"," ")
 joinall
 ```
 
+```{r}
+joinall %>%
+  filter(Name == "Scott Kazmir*")
+```
+
