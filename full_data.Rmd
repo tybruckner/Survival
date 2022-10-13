@@ -51,3 +51,50 @@ join_20_21 %>%
 distinct(Name, .keep_all = TRUE)
 ```
 
+```{r}
+cumulative19 = read.csv("2019_cumulative.csv")
+cumulative18 = read.csv("2018_cumulative.csv")
+cumulative17 = read.csv("2017_cumulative.csv")
+cumulative16 = read.csv("2016_cumulative.csv")
+cumulative15 = read.csv("2015_cumulative.csv")
+cumulative14 = read.csv("2014_cumulative.csv")
+cumulative13 = read.csv("2013_cumulative.csv")
+cumulative12 = read.csv("2012_cumulative.csv")
+cumulative11 = read.csv("2011_cumulative.csv")
+cumulative10 = read.csv("2010_cumulative.csv")
+cumulative09 = read.csv("2009_cumulative.csv")
+cumulative08 = read.csv("2008_cumulative.csv")
+cumulative07 = read.csv("2007_cumulative.csv")
+cumulative06 = read.csv("2006_cumulative.csv")
+cumulative05 = read.csv("2005_cumulative.csv")
+cumulative04 = read.csv("2004_cumulative.csv")
+cumulative03 = read.csv("2003_cumulative.csv")
+cumulative02 = read.csv("2002_cumulative.csv")
+cumulative01 = read.csv("2001_cumulative.csv")
+cumulative00 = read.csv("2000_cumulative.csv")
+
+
+```
+
+
+
+```{r}
+joinall <- rbind(join_20_21, cumulative19, cumulative18, cumulative17, cumulative16, cumulative15, cumulative14, cumulative13, cumulative12, cumulative11, cumulative10, cumulative09, cumulative08,cumulative07, cumulative06, cumulative05,cumulative04, cumulative03,cumulative02, cumulative01, cumulative00)
+```
+
+
+
+```{r}
+joinall <- joinall %>%
+    distinct(Name, .keep_all = TRUE)
+joinall
+```
+
+```{r}
+
+
+library(stringr)
+joinall$Name = str_replace(joinall$Name,"\xa0"," ")
+joinall
+```
+
