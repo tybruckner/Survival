@@ -9,49 +9,20 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
+## Libraries
 ```{r}
 library(readr)
 library(dplyr)
+library(stringr)
+library(survival)
+library(tidyverse)
 ```
 
+## Data
 ```{r}
 cumulative22 = read.csv("2022_cumulative.csv")
-```
-
-```{r}
-cumulative22 %>% 
-  distinct(Name, .keep_all = TRUE)
-```
-
-```{r}
 cumulative21 = read.csv("2021_cumulative.csv")
-```
-
-```{r}
-join_21_22 = rbind(cumulative22,cumulative21)
-```
-
-```{r}
-join_21_22 %>% 
-  distinct(Name, .keep_all = TRUE)
-```
-
-```{r}
 cumulative20 = read.csv("2020_cumulative.csv")
-
-```
-
-```{r}
-join_20_21 = rbind(join_21_22,cumulative20)
-```
-
-
-```{r}
-join_20_21 %>%
-distinct(Name, .keep_all = TRUE)
-```
-
-```{r}
 cumulative19 = read.csv("2019_cumulative.csv")
 cumulative18 = read.csv("2018_cumulative.csv")
 cumulative17 = read.csv("2017_cumulative.csv")
@@ -72,34 +43,83 @@ cumulative03 = read.csv("2003_cumulative.csv")
 cumulative02 = read.csv("2002_cumulative.csv")
 cumulative01 = read.csv("2001_cumulative.csv")
 cumulative00 = read.csv("2000_cumulative.csv")
-
-
 ```
 
+```{r}
+cumulative22$Status <- 0
+cumulative21$Status <- 1
+cumulative20$Status <- 1
+cumulative19$Status <- 1
+cumulative18$Status <- 1
+cumulative17$Status <- 1
+cumulative16$Status <- 1
+cumulative15$Status <- 1
+cumulative14$Status <- 1
+cumulative13$Status <- 1
+cumulative12$Status <- 1
+cumulative11$Status <- 1
+cumulative10$Status <- 1
+cumulative09$Status <- 1
+cumulative08$Status <- 1
+cumulative07$Status <- 1
+cumulative06$Status <- 1
+cumulative05$Status <- 1
+cumulative04$Status <- 1
+cumulative03$Status <- 1
+cumulative02$Status <- 1
+cumulative01$Status <- 1
+cumulative00$Status <- 1
+```
 
 
 ```{r}
-joinall <- rbind(join_20_21, cumulative19, cumulative18, cumulative17, cumulative16, cumulative15, cumulative14, cumulative13, cumulative12, cumulative11, cumulative10, cumulative09, cumulative08,cumulative07, cumulative06, cumulative05,cumulative04, cumulative03,cumulative02, cumulative01, cumulative00)
+joinall <- rbind(cumulative22, cumulative21, cumulative20, cumulative19, cumulative18, cumulative17, cumulative16, cumulative15, cumulative14, cumulative13, cumulative12, cumulative11, cumulative10, cumulative09, cumulative08, cumulative07, cumulative06, cumulative05, cumulative04, cumulative03, cumulative02, cumulative01, cumulative00)
 ```
-
-
 
 ```{r}
 joinall <- joinall %>%
     distinct(Name, .keep_all = TRUE)
+
 joinall
+```
+
+## Cleaning
+```{r}
+joinall$Name = str_replace(joinall$Name,"\xa0"," ")
 ```
 
 ```{r}
-
-
-library(stringr)
-joinall$Name = str_replace(joinall$Name,"\xa0"," ")
-joinall
+joinall <- joinall %>%
+  rename(ERA_plus = ERA.,
+         K = SO,
+         K9 = SO9,
+         KBB_ratio = SO.W,
+         WL_ratio = W.L.) %>% 
+  select(-ERA..1)
 ```
+
+```{r}
+joinall <- joinall %>% 
+  add_row(Rk = 267, Name = "Luis Garcia HOU", Age = 25, Yrs =	3,	W = 26, L =	17, WL_ratio = .605, ERA =	3.57, G =	63, GS = 57, GF = 2, CG = 0, SHO = 0, SV =	0, IP =	325.0, H = 271, R = 136, ER =	129, HR =	43, BB = 102, IBB =	1, K = 333, 	HBP = 5, BK	= 2, WP = 18,	BF = 1325,	ERA_plus = 115,	WHIP = 1.148,	H9 = 7.5,	HR9 = 1.2, BB9 = 2.8,	K9 = 9.2,	KBB_ratio = 3.26, Name.additional = "garcilu05", Status = 0)
+```
+
+```{r}
+joinall <- joinall %>% 
+  filter(IP != "NA",
+         IP != 0)
+```
+
 
 ```{r}
 joinall %>%
-  filter(Name == "Scott Kazmir*")
+  filter(is.na(WL_ratio)) %>% 
+  arrange(desc(IP))
 ```
+
+```{r}
+km = survreg(Surv(IP,Status)~1, data = joinall)
+
+plot(km)
+```
+
 
