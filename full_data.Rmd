@@ -18,7 +18,7 @@ library(survival)
 library(tidyverse)
 ```
 
-## Data
+## Baseball Reference Data
 ```{r}
 cumulative22 = read.csv("2022_cumulative.csv")
 cumulative21 = read.csv("2021_cumulative.csv")
@@ -71,7 +71,6 @@ cumulative01$Status <- 1
 cumulative00$Status <- 1
 ```
 
-
 ```{r}
 joinall <- rbind(cumulative22, cumulative21, cumulative20, cumulative19, cumulative18, cumulative17, cumulative16, cumulative15, cumulative14, cumulative13, cumulative12, cumulative11, cumulative10, cumulative09, cumulative08, cumulative07, cumulative06, cumulative05, cumulative04, cumulative03, cumulative02, cumulative01, cumulative00)
 ```
@@ -83,7 +82,7 @@ joinall <- joinall %>%
 joinall
 ```
 
-## Cleaning
+## Baseball Reference Cleaning
 ```{r}
 joinall$Name = str_replace(joinall$Name,"\xa0"," ")
 ```
@@ -106,20 +105,30 @@ joinall <- joinall %>%
 ```{r}
 joinall <- joinall %>% 
   filter(IP != "NA",
-         IP != 0)
-```
-
-
-```{r}
-joinall %>%
-  filter(is.na(WL_ratio)) %>% 
-  arrange(desc(IP))
+         IP > 10)
 ```
 
 ```{r}
-km = survreg(Surv(IP,Status)~1, data = joinall)
+joinall <- joinall %>% 
+  mutate(SP = ifelse(GS > 5, 1,0))
 
-plot(km)
+joinall %>% 
+  count(SP == 0)
 ```
+
+## Baseball Savant Data
+```{r}
+savant = read.csv("savant.csv")
+```
+
+## Baseball Savant Cleaning
+```{r}
+savant <- savant %>% 
+  select(-X.first_name,
+         -last_name,
+         -X,
+         -player_id)
+```
+
 
 
