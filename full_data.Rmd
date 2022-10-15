@@ -130,5 +130,32 @@ savant <- savant %>%
          -player_id)
 ```
 
+```{r}
+savant <- savant %>%
+  rename(IP = p_formatted_ip,
+         BAA = batting_avg,
+         OBP = on_base_percent,
+         QS = p_quality_start,
+         xBAA = xba,
+         xOBP = xobp,
+         AVG_EV = exit_velocity_avg,
+         AVG_LA = launch_angle_avg,
+         Barrel = barrel_batted_rate,
+         Hard_Hit = hard_hit_percent,
+         FPS = f_strike_percent,
+         Total_Pitches = n,
+         FB_Rate = n_fastball_formatted,
+         FB_MPH = fastball_avg_speed,
+         FB_Spin = fastball_avg_spin,
+         Breaking_Rate = n_breaking_formatted,
+         Breaking_MPH = breaking_avg_speed,
+         Breaking_Spin = breaking_avg_spin,
+         Offspeed_Rate = n_offspeed_formatted,
+         Offspeed_MPH = offspeed_avg_speed,
+         Offspeed_Spin = offspeed_avg_spin,
+         )
+```
+
+
 
 
