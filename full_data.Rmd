@@ -158,4 +158,23 @@ savant <- savant %>%
 
 
 
+```{r}
+savant %>% 
+  filter(Total_Pitches != "NA") %>%
+  filter(FB_Rate != "NA") %>%
+  filter(Breaking_Rate != "NA") %>%
+  filter(Offspeed_Rate != "NA") %>%
+  group_by(Name) %>% 
+  summarise(Mean_FB_Rate = mean(FB_Rate),
+            Mean_FB_MPH = mean(FB_MPH),
+            Mean_FB_Spin = mean(FB_Spin),
+            Mean_Breaking_Rate = mean(Breaking_Rate),
+            Mean_Breaking_MPH = mean(Breaking_MPH),
+            Mean_Breaking_Spin = mean(Breaking_Spin),
+            Mean_Offspeed_Rate = mean(Offspeed_Rate),
+            Mean_Offspeed_MPH = mean(Offspeed_MPH),
+            Mean_Offspeed_Spin = mean(Offspeed_Spin))
+```
+
+
 
