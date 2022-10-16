@@ -11,6 +11,7 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ## Libraries
 ```{r}
+library(plyr)
 library(readr)
 library(dplyr)
 library(stringr)
@@ -84,9 +85,48 @@ joinall
 
 ## Baseball Reference Cleaning
 ```{r}
-joinall$Name = str_replace(joinall$Name,"\xa0"," ")
+joinall$Name = str_replace_all(joinall$Name,"\xa0"," ")
+
 
 joinall$Name = str_replace(joinall$Name,"\\*","")
+
+joinall$Name = str_replace(joinall$Name,"\\#","")
+
+joinall$Name = str_replace(joinall$Name,"N  ez","Nunez")
+
+joinall$Name = str_replace(joinall$Name,"F lix","Felix")
+
+joinall$Name = str_replace(joinall$Name,"B ez","Baez")
+
+joinall$Name = str_replace(joinall$Name,"D az","Diaz")
+
+joinall$Name = str_replace(joinall$Name,"L pez","Lopez")
+
+joinall$Name = str_replace(joinall$Name,"P rez","Perez")
+
+joinall$Name = str_replace(joinall$Name,"Ru z","Ruiz")
+
+joinall$Name = str_replace(joinall$Name,"Pe a","Pena")
+
+joinall$Name = str_replace(joinall$Name,"Rodr guez", "Rodriguez")
+
+joinall$Name = str_replace(joinall$Name,"Mari ez", "Marinez")
+
+joinall$Name = str_replace(joinall$Name,"Adri n Morej n", "Adrian Morejon")
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 ```
 
 ```{r}
@@ -188,4 +228,9 @@ savant_avg <- savant %>%
 
 ## Dataset Joining
 
+```{r}
+fullset <- left_join(joinall, savant_avg, by = c("Name" = "Name"))
+
+fullset
+```
 
