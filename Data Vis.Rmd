@@ -1,0 +1,40 @@
+---
+title: "Data Vis"
+author: "Ty Bruckner"
+date: "2022-10-17"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+```{r}
+library(dplyr)
+library(ggplot2)
+fullset %>%
+  filter(SP == 1) %>%
+  ggplot(aes(x = Yrs, y = FB_MPH)) + 
+    geom_jitter() + 
+  geom_smooth()
+```
+
+```{r}
+fullset %>%
+  ggplot(aes(x = Yrs, y = FB_MPH, color = SP)) + 
+    geom_jitter() + 
+  geom_smooth()
+
+```
+
+
+
+```{r}
+fullset %>%
+  ggplot(aes(x = SP)) + 
+  geom_bar()+ 
+  labs(title = "Pitcher Type Count", y = "Total")
+```
+
