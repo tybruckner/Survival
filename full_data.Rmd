@@ -246,9 +246,90 @@ statcast
 ```
 
 
+## Variable Addition
+```{r}
+statcast <- statcast %>% 
+  mutate(FB_Primary = ifelse(FB_Rate > 57.7, 1, 0))
+
+statcast %>% 
+  count(FB_Primary)
+```
+
+
 ## Initial Exploration
 
 ### Kaplan Meier Curves
+```{r}
+fullset_km_IP = survfit(Surv(IP,Status)~SP, conf.type = "plain", data = fullset)
+
+plot(fullset_km_IP, lty = 1:2)
+
+summary(fullset_km_IP)
+```
+
+```{r}
+fullset_km_yrs = survfit(Surv(Yrs,Status)~SP, conf.type = "plain", data = fullset)
+
+plot(fullset_km_yrs, lty = 1:2)
+
+summary(fullset_km_yrs)
+```
+
+```{r}
+statcast_km_IP = survfit(Surv(IP,Status)~SP, conf.type = "plain", data = statcast)
+
+plot(statcast_km_IP, lty = 1:2)
+
+summary(statcast_km_IP)
+```
+
+```{r}
+statcast_km_yrs = survfit(Surv(Yrs,Status)~SP, conf.type = "plain", data = statcast)
+
+plot(statcast_km_yrs, lty = 1:2)
+
+summary(statcast_km_yrs)
+```
+
+```{r}
+km_FB_primary_yrs = survfit(Surv(Yrs,Status)~FB_Primary + strata(SP), conf.type = "plain", data = statcast)
+
+plot(km_FB_primary_yrs, lty = 1:2)
+
+summary(km_FB_primary_yrs)
+```
+
+```{r}
+km_FB_primary_IP = survfit(Surv(IP,Status)~FB_Primary + strata(SP), conf.type = "plain", data = statcast)
+
+plot(km_FB_primary_IP, lty = 1:2)
+
+summary(km_FB_primary_IP)
+```
 
 
 ### Log Rank Test
+```{r}
+survdiff(Surv(IP,Status)~SP, data = fullset)
+```
+
+```{r}
+survdiff(Surv(Yrs,Status)~SP, data = fullset)
+```
+
+```{r}
+survdiff(Surv(IP,Status)~SP, data = statcast)
+```
+
+```{r}
+survdiff(Surv(Yrs,Status)~SP, data = statcast)
+```
+
+```{r}
+survdiff(Surv(Yrs,Status)~FB_Primary + strata(SP), data = statcast)
+```
+
+```{r}
+survdiff(Surv(IP,Status)~FB_Primary + strata(SP), data = statcast)
+```
+
