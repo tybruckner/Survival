@@ -1,6 +1,6 @@
 ---
 title: "Data"
-author: "Will Brazgel"
+author: "Will Brazgel and Ty Bruckner"
 date: "2022-09-30"
 output: html_document
 ---
@@ -8,6 +8,7 @@ output: html_document
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
+
 
 ## Libraries
 ```{r}
@@ -18,6 +19,7 @@ library(stringr)
 library(survival)
 library(tidyverse)
 ```
+
 
 ## Baseball Reference Data
 ```{r}
@@ -83,7 +85,23 @@ joinall <- joinall %>%
 joinall
 ```
 
+
 ## Baseball Reference Cleaning
+```{r}
+joinall <- joinall %>%
+  rename(ERA_plus = ERA.,
+         K = SO,
+         K9 = SO9,
+         KBB_ratio = SO.W,
+         WL_ratio = W.L.) %>% 
+  select(-ERA..1)
+```
+
+```{r}
+joinall <- joinall %>% 
+  add_row(Rk = 267, Name = "Luis Garcia HOU", Age = 25, Yrs =	3,	W = 26, L =	17, WL_ratio = .605, ERA =	3.57, G =	63, GS = 57, GF = 2, CG = 0, SHO = 0, SV =	0, IP =	325.0, H = 271, R = 136, ER =	129, HR =	43, BB = 102, IBB =	1, K = 333, 	HBP = 5, BK	= 2, WP = 18,	BF = 1325,	ERA_plus = 115,	WHIP = 1.148,	H9 = 7.5,	HR9 = 1.2, BB9 = 2.8,	K9 = 9.2,	KBB_ratio = 3.26, Name.additional = "garcilu05", Status = 0)
+```
+
 ```{r}
 joinall$Name = str_replace_all(joinall$Name,"\xa0"," ")
 
@@ -119,21 +137,6 @@ joinall$Name = str_remove_all(joinall$Name," ")
 ```
 
 ```{r}
-joinall <- joinall %>%
-  rename(ERA_plus = ERA.,
-         K = SO,
-         K9 = SO9,
-         KBB_ratio = SO.W,
-         WL_ratio = W.L.) %>% 
-  select(-ERA..1)
-```
-
-```{r}
-joinall <- joinall %>% 
-  add_row(Rk = 267, Name = "Luis Garcia HOU", Age = 25, Yrs =	3,	W = 26, L =	17, WL_ratio = .605, ERA =	3.57, G =	63, GS = 57, GF = 2, CG = 0, SHO = 0, SV =	0, IP =	325.0, H = 271, R = 136, ER =	129, HR =	43, BB = 102, IBB =	1, K = 333, 	HBP = 5, BK	= 2, WP = 18,	BF = 1325,	ERA_plus = 115,	WHIP = 1.148,	H9 = 7.5,	HR9 = 1.2, BB9 = 2.8,	K9 = 9.2,	KBB_ratio = 3.26, Name.additional = "garcilu05", Status = 0)
-```
-
-```{r}
 joinall <- joinall %>% 
   filter(IP != "NA",
          IP > 10)
@@ -147,10 +150,12 @@ joinall %>%
   count(SP == 0)
 ```
 
+
 ## Baseball Savant Data
 ```{r}
 savant = read.csv("savant.csv")
 ```
+
 
 ## Baseball Savant Cleaning
 ```{r}
@@ -216,16 +221,34 @@ savant_avg <- savant %>%
 ```
 
 ```{r}
+savant_avg$Name = str_replace(savant_avg$Name,"Luis Garcia", "Luis Garcia HOU")
+
 savant_avg$Name = str_replace_all(savant_avg$Name,"\\.", " ")
 
 savant_avg$Name = str_remove_all(savant_avg$Name," ")
 ```
 
-## Dataset Joining
 
+## Dataset Joining
 ```{r}
-fullset = merge(x = joinall, y = savant_avg, by = "Name")
+fullset <- left_join(joinall, 
+                    savant_avg,
+                    by = "Name")
 
 fullset
 ```
 
+```{r}
+statcast <- inner_join(joinall,
+                       savant_avg,
+                       by = "Name")
+statcast
+```
+
+
+## Initial Exploration
+
+### Kaplan Meier Curves
+
+
+### Log Rank Test
