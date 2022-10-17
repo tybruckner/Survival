@@ -87,7 +87,6 @@ joinall
 ```{r}
 joinall$Name = str_replace_all(joinall$Name,"\xa0"," ")
 
-
 joinall$Name = str_replace(joinall$Name,"\\*","")
 
 joinall$Name = str_replace(joinall$Name,"\\#","")
@@ -114,19 +113,9 @@ joinall$Name = str_replace(joinall$Name,"Mari ez", "Marinez")
 
 joinall$Name = str_replace(joinall$Name,"Adri n Morej n", "Adrian Morejon")
 
+joinall$Name = str_replace_all(joinall$Name,"\\.", " ")
 
-
-
-
-
-
-
-
-
-
-
-
-
+joinall$Name = str_remove_all(joinall$Name," ")
 ```
 
 ```{r}
@@ -226,10 +215,16 @@ savant_avg <- savant %>%
             )
 ```
 
+```{r}
+savant_avg$Name = str_replace_all(savant_avg$Name,"\\.", " ")
+
+savant_avg$Name = str_remove_all(savant_avg$Name," ")
+```
+
 ## Dataset Joining
 
 ```{r}
-fullset <- left_join(joinall, savant_avg, by = c("Name" = "Name"))
+fullset = merge(x = joinall, y = savant_avg, by = "Name")
 
 fullset
 ```
