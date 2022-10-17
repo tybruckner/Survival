@@ -18,7 +18,9 @@ fullset %>%
   filter(SP == 1) %>%
   ggplot(aes(x = Yrs, y = FB_MPH)) + 
     geom_jitter() + 
-  geom_smooth()
+  geom_smooth()+
+  theme_minimal()+
+  labs(x = "Years", y = )
 ```
 
 ```{r}
@@ -33,8 +35,9 @@ fullset %>%
 
 ```{r}
 fullset %>%
-  ggplot(aes(x = SP)) + 
+  ggplot(aes(x = SP, color = SP)) + 
   geom_bar()+ 
-  labs(title = "Pitcher Type Count", y = "Total")
+  labs(title = "Starting Pitchers vs Relief Pitchers", y = "Total")+
+  theme_minimal()
 ```
 
