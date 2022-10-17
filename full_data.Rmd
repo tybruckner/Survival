@@ -1,12 +1,12 @@
 ---
 title: "Data"
-author: "Will Brazgel and Ty Bruckner"
+author: "Will Brazgel"
 date: "2022-09-30"
 output: html_document
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(echo = TRUE, eval = FALSE)
 ```
 
 
