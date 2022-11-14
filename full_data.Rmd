@@ -404,6 +404,10 @@ AIC_w
 AIC_lnorm = 2*(3-(-5944.6))
 AIC_lnorm
 ```
+```{r}
+statcast %>% 
+  count(SP == 1)
+```
 
 
 ```{r}
@@ -411,6 +415,11 @@ statcast_SP <- statcast %>%
   filter(SP == 1)
 ```
 
+
+```{r}
+statcast_RP <- statcast %>% 
+  filter(SP == 0)
+```
 
 ```{r}
 survreg(Surv(IP,Status)~1, dist = "weibull", data = statcast_SP)
@@ -454,8 +463,18 @@ summary(m2)
 ```
 
 ```{r}
+m2_logn = survreg(Surv(IP,Status)~FB_Rate + FB_MPH + FB_Spin, dist = "lognormal", data = statcast_SP)
+summary(m2_logn)
+```
+
+```{r}
 m3 = survreg(Surv(IP,Status)~Breaking_Rate + Breaking_MPH + Breaking_Spin, dist = "weibull", data = statcast_SP)
 summary(m3)
+```
+
+```{r}
+m3_logn = survreg(Surv(IP,Status)~Breaking_Rate + Breaking_MPH + Breaking_Spin, dist = "lognormal", data = statcast_SP)
+summary(m3_logn)
 ```
 
 ```{r}
@@ -463,9 +482,93 @@ m4 = survreg(Surv(IP,Status)~Offspeed_Rate + Offspeed_MPH + Offspeed_Spin, dist 
 summary(m4)
 ```
 
+```{r}
+m4_logn = survreg(Surv(IP,Status)~Offspeed_Rate + Offspeed_MPH + Offspeed_Spin, dist = "lognormal", data = statcast_SP)
+summary(m4_logn)
+```
 
 ```{r}
 statcast_SP %>% 
+  select(Name, IP, FB_Spin, Drop_MPH, ERA) %>% 
   arrange(desc(Drop_MPH))
 ```
 
+```{r}
+m6 = survreg(Surv(IP,Status)~Drop_MPH, dist = "weibull", data = statcast_SP)
+summary(m6)
+```
+
+```{r}
+m7 = survreg(Surv(IP,Status)~Drop_MPH, dist = "gaussian", data = statcast_SP)
+summary(m7)
+```
+
+
+
+
+## RP
+```{r}
+survreg(Surv(IP,Status)~1, dist = "gaussian", data = statcast_RP)
+```
+
+```{r}
+CS = -log( 1 - pnorm( statcast_RP$IP , mean = 220.3841, sd = 199.644  ))
+
+CoxSnell( CS , statcast_RP$Status )
+```
+
+```{r}
+survreg(Surv(IP,Status)~1, dist = "exponential", data = statcast_RP)
+```
+
+```{r}
+CS = -log( 1 - pexp( statcast_RP$IP , rate = 1/exp(5.440351 )))
+
+CoxSnell( CS , statcast_RP$Status )
+```
+
+```{r}
+survreg(Surv(IP,Status)~1, dist = "weibull", data = statcast_RP)
+```
+
+```{r}
+CS = -log( 1 - pweibull( statcast_RP$IP , shape = 1/(1.120017), scale = exp(5.441336) ))
+
+CoxSnell( CS , statcast_RP$Status )
+```
+
+
+```{r}
+survreg(Surv(IP,Status)~1, dist = "lognormal", data = statcast_RP)
+```
+
+```{r}
+CS = -log( 1 - plnorm( statcast_RP$IP , meanlog = 4.861261, sdlog = 1.360014))
+
+CoxSnell( CS , statcast_RP$Status )
+```
+
+```{r}
+AIC_w = 2*(3-(-2847.8))
+AIC_w
+```
+
+```{r}
+AIC_lnorm = 2*(3-(-2819.7))
+AIC_lnorm
+```
+
+```{r}
+m2_rp = survreg(Surv(IP,Status)~FB_Rate + FB_MPH + FB_Spin, dist = "lognormal", data = statcast_RP)
+summary(m2_rp)
+```
+
+```{r}
+m3_rp = survreg(Surv(IP,Status)~Breaking_Rate + Breaking_MPH + Breaking_Spin, dist = "lognormal", data = statcast_RP)
+summary(m3_rp)
+```
+
+```{r}
+m4_rp = survreg(Surv(IP,Status)~Offspeed_Rate + Offspeed_MPH + Offspeed_Spin, dist = "lognormal", data = statcast_RP)
+summary(m4_rp)
+```
