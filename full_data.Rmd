@@ -253,6 +253,9 @@ statcast <- statcast %>%
 
 statcast %>% 
   count(FB_Primary)
+
+statcast <- statcast %>% 
+  mutate(Drop_MPH = FB_MPH - Offspeed_MPH)
 ```
 
 
@@ -331,5 +334,138 @@ survdiff(Surv(Yrs,Status)~FB_Primary + strata(SP), data = statcast)
 
 ```{r}
 survdiff(Surv(IP,Status)~FB_Primary + strata(SP), data = statcast)
+```
+
+## Cox-Snell Residuals
+
+```{r}
+CoxSnell = function(cs,status,xlim=NULL,ylim=NULL)
+{
+kmcs = survfit( Surv(jitter(cs,amount=(max(cs)-min(cs))/1000),status) ~ 1 )$surv
+
+plot( log(-log(kmcs)) ~ sort(log(cs)) ,
+      xlab="log(Cox-Snell)", ylab="log(-log(S(Cox-Snell)))", xlim=xlim, ylim=ylim )
+
+abline(0,1,col='red')
+}
+```
+
+```{r}
+survreg(Surv(IP,Status)~1, dist = "gaussian", data = statcast)
+```
+
+```{r}
+CS = -log( 1 - pnorm( statcast$IP , mean = 666.4587, sd = 637.4551) )
+
+CoxSnell( CS , statcast$Status )
+```
+
+```{r}
+survreg(Surv(IP,Status)~1, dist = "exponential", data = statcast)
+```
+
+```{r}
+CS = -log( 1 - pexp( statcast$IP , rate = 1/exp(6.486571)) )
+
+CoxSnell( CS , statcast$Status )
+```
+
+```{r}
+survreg(Surv(IP,Status)~1, dist = "weibull", data = statcast)
+```
+
+```{r}
+CS = -log( 1 - pweibull( statcast$IP , shape = 1/(1.307044), scale = exp(6.499194) ))
+
+CoxSnell( CS , statcast$Status )
+```
+
+```{r}
+survreg(Surv(IP,Status)~1, dist = "lognormal", data = statcast)
+```
+
+```{r}
+CS = -log( 1 - plnorm( statcast$IP , meanlog = 5.845299, sdlog = 1.674855))
+
+CoxSnell( CS , statcast$Status )
+```
+
+
+
+
+
+
+```{r}
+AIC_w = 2*(3-(-5975.5))
+AIC_w
+```
+
+```{r}
+AIC_lnorm = 2*(3-(-5944.6))
+AIC_lnorm
+```
+
+
+```{r}
+statcast_SP <- statcast %>% 
+  filter(SP == 1)
+```
+
+
+```{r}
+survreg(Surv(IP,Status)~1, dist = "weibull", data = statcast_SP)
+```
+
+```{r}
+CS = -log( 1 - pweibull( statcast_SP$IP , shape = 1/( 0.9718077), scale = exp(7.063609 ) ))
+
+CoxSnell( CS , statcast_SP$Status )
+```
+
+
+```{r}
+survreg(Surv(IP,Status)~1, dist = "lognormal", data = statcast_SP)
+```
+
+```{r}
+CS = -log( 1 - plnorm( statcast_SP$IP , meanlog = 6.592084, sdlog = 1.339075))
+
+CoxSnell( CS , statcast_SP$Status )
+```
+
+```{r}
+AIC_w = 2*(3-(-2929.1))
+AIC_w
+```
+
+```{r}
+AIC_lnorm = 2*(3-(-2932))
+AIC_lnorm
+```
+
+
+```{r}
+survreg(Surv(IP,Status)~1, dist = "weibull", data = statcast_SP)
+```
+
+```{r}
+m2 = survreg(Surv(IP,Status)~FB_Rate + FB_MPH + FB_Spin, dist = "weibull", data = statcast_SP)
+summary(m2)
+```
+
+```{r}
+m3 = survreg(Surv(IP,Status)~Breaking_Rate + Breaking_MPH + Breaking_Spin, dist = "weibull", data = statcast_SP)
+summary(m3)
+```
+
+```{r}
+m4 = survreg(Surv(IP,Status)~Offspeed_Rate + Offspeed_MPH + Offspeed_Spin, dist = "weibull", data = statcast_SP)
+summary(m4)
+```
+
+
+```{r}
+statcast_SP %>% 
+  arrange(desc(Drop_MPH))
 ```
 
