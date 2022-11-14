@@ -499,7 +499,7 @@ summary(m6)
 ```
 
 ```{r}
-m7 = survreg(Surv(IP,Status)~Drop_MPH, dist = "gaussian", data = statcast_SP)
+m7 = survreg(Surv(IP,Status)~Drop_MPH, dist = "lognormal", data = statcast_SP)
 summary(m7)
 ```
 
