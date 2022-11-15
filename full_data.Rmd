@@ -572,3 +572,21 @@ summary(m3_rp)
 m4_rp = survreg(Surv(IP,Status)~Offspeed_Rate + Offspeed_MPH + Offspeed_Spin, dist = "lognormal", data = statcast_RP)
 summary(m4_rp)
 ```
+
+
+```{r}
+m5_rp = survreg(Surv(IP,Status)~Drop_MPH, dist = "lognormal", data = statcast_RP)
+summary(m5_rp)
+```
+
+
+```{r}
+m6_rp = survreg(Surv(IP,Status)~ FB_MPH + Breaking_Spin + Breaking_MPH , dist = "lognormal", data = statcast_RP)
+summary(m6_rp)
+```
+
+```{r}
+m7_rp = survreg(Surv(IP,Status)~ FB_MPH + Breaking_Spin + Breaking_MPH + Offspeed_MPH, dist = "lognormal", data = statcast_RP)
+summary(m7_rp)
+```
+
