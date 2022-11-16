@@ -409,6 +409,11 @@ statcast %>%
   count(SP == 1)
 ```
 
+```{r}
+statcast <- statcast %>%
+  mutate(FB_Pitcher  = ifelse(FB_Rate > 55,1,0))
+```
+
 
 ```{r}
 statcast_SP <- statcast %>% 
@@ -494,7 +499,7 @@ statcast_SP %>%
 ```
 
 ```{r}
-m6 = survreg(Surv(IP,Status)~Drop_MPH, dist = "weibull", data = statcast_SP)
+m6 = survreg(Surv(IP,Status)~Drop_MPH, dist = "lognormal", data = statcast_SP)
 summary(m6)
 ```
 
@@ -503,7 +508,25 @@ m7 = survreg(Surv(IP,Status)~Drop_MPH, dist = "lognormal", data = statcast_SP)
 summary(m7)
 ```
 
+```{r}
+statcast_SP_FB <- statcast_SP %>%
+  filter(FB_Primary == 1)
 
+m8 = survreg(Surv(IP,Status)~ FB_MPH, dist = "lognormal", data = statcast_SP_FB)
+summary(m8)
+
+```
+
+```{r}
+
+m9 = survreg(Surv(IP,Status)~ FB_MPH , dist = "lognormal", data = statcast_SP)
+summary(m9)
+```
+
+```{r}
+m10 = survreg(Surv(IP,Status)~Drop_MPH , dist = "lognormal", data = statcast_SP_FB)
+summary(m10)
+```
 
 
 ## RP
@@ -541,6 +564,8 @@ CoxSnell( CS , statcast_RP$Status )
 ```{r}
 survreg(Surv(IP,Status)~1, dist = "lognormal", data = statcast_RP)
 ```
+
+
 
 ```{r}
 CS = -log( 1 - plnorm( statcast_RP$IP , meanlog = 4.861261, sdlog = 1.360014))
