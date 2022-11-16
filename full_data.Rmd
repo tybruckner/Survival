@@ -229,6 +229,27 @@ savant_avg$Name = str_remove_all(savant_avg$Name," ")
 ```
 
 
+## Draft Data
+```{r}
+Draft = read.csv("Draft.csv",encoding="UTF-8")
+```
+
+
+## Draft Cleaning
+```{r}
+Draft <- Draft %>% 
+  mutate(Name = name_first_last,
+         Handedness = throws,
+         Overall_Pick = overall,
+         Round = round_desc) %>% 
+  select(Name,Overall_Pick,Handedness,Round)
+
+Draft$Name = str_replace_all(Draft$Name,"\\.", " ")
+
+Draft$Name = str_remove_all(Draft$Name," ")
+```
+
+
 ## Dataset Joining
 ```{r}
 fullset <- left_join(joinall, 
@@ -236,6 +257,14 @@ fullset <- left_join(joinall,
                     by = "Name")
 
 fullset
+```
+
+```{r}
+fullset_draft <- inner_join(fullset, 
+                    Draft,
+                    by = "Name")
+
+fullset_draft <- fullset_draft %>% distinct(Name, .keep_all = TRUE)
 ```
 
 ```{r}
@@ -518,7 +547,6 @@ summary(m8)
 ```
 
 ```{r}
-
 m9 = survreg(Surv(IP,Status)~ FB_MPH , dist = "lognormal", data = statcast_SP)
 summary(m9)
 ```
@@ -625,8 +653,10 @@ summary(m1_fs)
 ```{r}
 fullset <- fullset %>%
   mutate(IPY = IP/Yrs)
+
 m2_fs = survreg(Surv(Yrs,Status)~ IPY, dist = "weibull", data = fullset)
 summary(m2_fs)
+
 m3_fs = survreg(Surv(Yrs,Status)~ IP + IPY, dist = "weibull", data = fullset)
 summary(m3_fs)
 ```
@@ -647,6 +677,12 @@ summary(m5_fs)
 ```
 
 ```{r}
+km_draft = survfit(Surv(IP,Status)~Overall_Pick, conf.type = "plain", data = fullset_draft)
 
+plot(km_draft, lty = 1:2)
 ```
 
+```{r}
+m_draft = survreg(Surv(IP,Status)~Overall_Pick, dist = "weibull", data = fullset_draft)
+summary(m_draft)
+```
