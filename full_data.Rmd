@@ -89,7 +89,7 @@ joinall
 ## Baseball Reference Cleaning
 ```{r}
 joinall <- joinall %>%
-  rename(ERA_plus = ERA.,
+  rename(ERA_plus = `ERA.`,
          K = SO,
          K9 = SO9,
          KBB_ratio = SO.W,
@@ -588,5 +588,40 @@ summary(m6_rp)
 ```{r}
 m7_rp = survreg(Surv(IP,Status)~ FB_MPH + Breaking_Spin + Breaking_MPH + Offspeed_MPH, dist = "lognormal", data = statcast_RP)
 summary(m7_rp)
+```
+
+```{r}
+m1_fs = survreg(Surv(Yrs,Status)~ IP, dist = "weibull", data = fullset)
+summary(m1_fs)
+```
+
+
+
+```{r}
+fullset <- fullset %>%
+  mutate(IPY = IP/Yrs)
+m2_fs = survreg(Surv(Yrs,Status)~ IPY, dist = "weibull", data = fullset)
+summary(m2_fs)
+m3_fs = survreg(Surv(Yrs,Status)~ IP + IPY, dist = "weibull", data = fullset)
+summary(m3_fs)
+```
+
+```{r}
+m4_fs = survreg(Surv(Yrs,Status)~ IPY + SP, dist = "weibull", data = fullset)
+summary(m4_fs)
+```
+
+```{r}
+m5_fs = survreg(Surv(Yrs,Status)~ SP, dist = "weibull", data = fullset)
+summary(m5_fs)
+```
+
+```{r}
+m5_fs = survreg(Surv(IP,Status)~ SP, dist = "weibull", data = fullset)
+summary(m5_fs)
+```
+
+```{r}
+
 ```
 
