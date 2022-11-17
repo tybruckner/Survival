@@ -716,6 +716,9 @@ fulldata_hand <- fullset_draft %>%
   
 m_hand = survreg(Surv(IP,Status)~Handedness , dist = "lognormal", data = fulldata_hand)
 summary(m_hand)
+
+m_hand1 = survreg(Surv(IP,Status)~Handedness * SP, dist = "lognormal", data = fulldata_hand)
+summary(m_hand1)
 ```
 
 1637,1027,1686,737
