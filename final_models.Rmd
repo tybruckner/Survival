@@ -1,0 +1,286 @@
+---
+title: "Final Models"
+author: "Will Brazgel"
+date: "2022-11-17"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+## Libraries
+```{r}
+library(plyr)
+library(readr)
+library(dplyr)
+library(stringr)
+library(survival)
+library(tidyverse)
+```
+
+
+## Baseball Reference Data
+```{r}
+cumulative22 = read.csv("2022_cumulative.csv", encoding="UTF-8")
+cumulative21 = read.csv("2021_cumulative.csv", encoding="UTF-8")
+cumulative20 = read.csv("2020_cumulative.csv", encoding="UTF-8")
+cumulative19 = read.csv("2019_cumulative.csv", encoding="UTF-8")
+cumulative18 = read.csv("2018_cumulative.csv", encoding="UTF-8")
+cumulative17 = read.csv("2017_cumulative.csv", encoding="UTF-8")
+cumulative16 = read.csv("2016_cumulative.csv", encoding="UTF-8")
+cumulative15 = read.csv("2015_cumulative.csv", encoding="UTF-8")
+cumulative14 = read.csv("2014_cumulative.csv", encoding="UTF-8")
+cumulative13 = read.csv("2013_cumulative.csv", encoding="UTF-8")
+cumulative12 = read.csv("2012_cumulative.csv", encoding="UTF-8")
+cumulative11 = read.csv("2011_cumulative.csv", encoding="UTF-8")
+cumulative10 = read.csv("2010_cumulative.csv", encoding="UTF-8")
+cumulative09 = read.csv("2009_cumulative.csv", encoding="UTF-8")
+cumulative08 = read.csv("2008_cumulative.csv", encoding="UTF-8")
+cumulative07 = read.csv("2007_cumulative.csv", encoding="UTF-8")
+cumulative06 = read.csv("2006_cumulative.csv", encoding="UTF-8")
+cumulative05 = read.csv("2005_cumulative.csv", encoding="UTF-8")
+cumulative04 = read.csv("2004_cumulative.csv", encoding="UTF-8")
+cumulative03 = read.csv("2003_cumulative.csv", encoding="UTF-8")
+cumulative02 = read.csv("2002_cumulative.csv", encoding="UTF-8")
+cumulative01 = read.csv("2001_cumulative.csv", encoding="UTF-8")
+cumulative00 = read.csv("2000_cumulative.csv", encoding="UTF-8")
+```
+
+```{r}
+cumulative22$Status <- 0
+cumulative21$Status <- 1
+cumulative20$Status <- 1
+cumulative19$Status <- 1
+cumulative18$Status <- 1
+cumulative17$Status <- 1
+cumulative16$Status <- 1
+cumulative15$Status <- 1
+cumulative14$Status <- 1
+cumulative13$Status <- 1
+cumulative12$Status <- 1
+cumulative11$Status <- 1
+cumulative10$Status <- 1
+cumulative09$Status <- 1
+cumulative08$Status <- 1
+cumulative07$Status <- 1
+cumulative06$Status <- 1
+cumulative05$Status <- 1
+cumulative04$Status <- 1
+cumulative03$Status <- 1
+cumulative02$Status <- 1
+cumulative01$Status <- 1
+cumulative00$Status <- 1
+```
+
+```{r}
+joinall <- rbind(cumulative22, cumulative21, cumulative20, cumulative19, cumulative18, cumulative17, cumulative16, cumulative15, cumulative14, cumulative13, cumulative12, cumulative11, cumulative10, cumulative09, cumulative08, cumulative07, cumulative06, cumulative05, cumulative04, cumulative03, cumulative02, cumulative01, cumulative00)
+```
+
+```{r}
+joinall <- joinall %>%
+    distinct(Name, .keep_all = TRUE)
+```
+
+
+## Baseball Reference Cleaning
+```{r}
+joinall <- joinall %>%
+  rename(ERA_plus = `ERA.`,
+         K = SO,
+         K9 = SO9,
+         KBB_ratio = SO.W,
+         WL_ratio = W.L.) %>% 
+  select(-ERA..1)
+```
+
+```{r}
+joinall <- joinall %>% 
+  add_row(Rk = 267, Name = "Luis Garcia HOU", Age = 25, Yrs =	3,	W = 26, L =	17, WL_ratio = .605, ERA =	3.57, G =	63, GS = 57, GF = 2, CG = 0, SHO = 0, SV =	0, IP =	325.0, H = 271, R = 136, ER =	129, HR =	43, BB = 102, IBB =	1, K = 333, 	HBP = 5, BK	= 2, WP = 18,	BF = 1325,	ERA_plus = 115,	WHIP = 1.148,	H9 = 7.5,	HR9 = 1.2, BB9 = 2.8,	K9 = 9.2,	KBB_ratio = 3.26, Name.additional = "garcilu05", Status = 0)
+```
+
+```{r}
+joinall$Name = str_replace_all(joinall$Name,"\xa0"," ")
+
+joinall$Name = str_replace(joinall$Name,"\\*","")
+
+joinall$Name = str_replace(joinall$Name,"\\#","")
+
+joinall$Name = str_replace(joinall$Name,"N  ez","Nunez")
+
+joinall$Name = str_replace(joinall$Name,"F lix","Felix")
+
+joinall$Name = str_replace(joinall$Name,"B ez","Baez")
+
+joinall$Name = str_replace(joinall$Name,"D az","Diaz")
+
+joinall$Name = str_replace(joinall$Name,"L pez","Lopez")
+
+joinall$Name = str_replace(joinall$Name,"P rez","Perez")
+
+joinall$Name = str_replace(joinall$Name,"Ru z","Ruiz")
+
+joinall$Name = str_replace(joinall$Name,"Pe a","Pena")
+
+joinall$Name = str_replace(joinall$Name,"Rodr guez", "Rodriguez")
+
+joinall$Name = str_replace(joinall$Name,"Mari ez", "Marinez")
+
+joinall$Name = str_replace(joinall$Name,"Adri n Morej n", "Adrian Morejon")
+
+joinall$Name = str_replace_all(joinall$Name,"\\.", " ")
+
+joinall$Name = str_remove_all(joinall$Name," ")
+```
+
+```{r}
+joinall <- joinall %>% 
+  filter(IP != "NA",
+         IP > 10)
+```
+
+```{r}
+joinall <- joinall %>% 
+  mutate(SP = ifelse(GS > 5, 1,0))
+
+joinall %>% 
+  count(SP == 0)
+```
+
+## Baseball Savant Data
+```{r}
+savant = read.csv("savant.csv")
+```
+
+
+## Baseball Savant Cleaning
+```{r}
+savant <- savant %>% 
+  select(-X.first_name,
+         -last_name,
+         -X,
+         -player_id)
+```
+
+```{r}
+savant <- savant %>%
+  rename(IP = p_formatted_ip,
+         BAA = batting_avg,
+         OBP = on_base_percent,
+         QS = p_quality_start,
+         xBAA = xba,
+         xOBP = xobp,
+         AVG_EV = exit_velocity_avg,
+         AVG_LA = launch_angle_avg,
+         Barrel = barrel_batted_rate,
+         Hard_Hit = hard_hit_percent,
+         FPS = f_strike_percent,
+         Total_Pitches = n,
+         FB_Rate = n_fastball_formatted,
+         FB_MPH = fastball_avg_speed,
+         FB_Spin = fastball_avg_spin,
+         Breaking_Rate = n_breaking_formatted,
+         Breaking_MPH = breaking_avg_speed,
+         Breaking_Spin = breaking_avg_spin,
+         Offspeed_Rate = n_offspeed_formatted,
+         Offspeed_MPH = offspeed_avg_speed,
+         Offspeed_Spin = offspeed_avg_spin,
+         )
+```
+
+```{r}
+savant_avg <- savant %>% 
+  filter(Total_Pitches != "NA") %>%
+  filter(FB_Rate != "NA") %>%
+  filter(Breaking_Rate != "NA") %>%
+  filter(Offspeed_Rate != "NA") %>%
+  group_by(Name) %>% 
+  summarise(FB_Rate = mean(FB_Rate),
+            FB_MPH = mean(FB_MPH),
+            FB_Spin = mean(FB_Spin),
+            Breaking_Rate = mean(Breaking_Rate),
+            Breaking_MPH = mean(Breaking_MPH),
+            Breaking_Spin = mean(Breaking_Spin),
+            Offspeed_Rate = mean(Offspeed_Rate),
+            Offspeed_MPH = mean(Offspeed_MPH),
+            Offspeed_Spin = mean(Offspeed_Spin),
+            BAA = mean(BAA),
+            OBP = mean(OBP),
+            xBAA = mean(xBAA),
+            xOBP = mean(xOBP),
+            AVG_EV = mean(AVG_EV),
+            AVG_LA = mean(AVG_LA),
+            Barrel = mean(Barrel),
+            Hard_Hit = mean(Hard_Hit),
+            FPS = mean(FPS)
+            )
+```
+
+```{r}
+savant_avg$Name = str_replace(savant_avg$Name,"Luis Garcia", "Luis Garcia HOU")
+
+savant_avg$Name = str_replace_all(savant_avg$Name,"\\.", " ")
+
+savant_avg$Name = str_remove_all(savant_avg$Name," ")
+```
+
+
+## Dataset Joining
+```{r}
+fullset <- left_join(joinall, 
+                    savant_avg,
+                    by = "Name")
+
+fullset
+```
+
+```{r}
+fullset_draft <- inner_join(fullset, 
+                    Draft,
+                    by = "Name")
+
+fullset_draft <- fullset_draft %>% distinct(Name, .keep_all = TRUE)
+
+fullset_draft <- fullset_draft %>%
+  filter(Name != 'AaronBarrett',
+         Name != 'JeanMachi',
+         Name != 'TimHamulack',
+         Name != 'BenDiggins')
+```
+
+```{r}
+statcast <- inner_join(joinall,
+                       savant_avg,
+                       by = "Name")
+statcast
+```
+
+
+## Variable Addition
+```{r}
+statcast <- statcast %>% 
+  mutate(FB_Primary = ifelse(FB_Rate > 57.7, 1, 0))
+
+statcast %>% 
+  count(FB_Primary)
+
+statcast <- statcast %>% 
+  mutate(Drop_MPH = FB_MPH - Offspeed_MPH)
+
+statcast <- statcast %>% 
+  mutate(IP_perYear = IP/Yrs)
+
+fullset <- fullset %>%
+  mutate(IPY = IP/Yrs)
+
+fullset_draft <- fullset_draft %>%
+  mutate(High_pick = ifelse(Overall_Pick < 61, 1, 0),
+         Round1_pick = ifelse(Overall_Pick < 31, 1, 0),
+         First10_pick = ifelse(Overall_Pick < 301, 1, 0))
+```
+
+
+## Final Models
+
+
