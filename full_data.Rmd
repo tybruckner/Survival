@@ -662,17 +662,17 @@ summary(m3_fs)
 ```
 
 ```{r}
-m4_fs = survreg(Surv(Yrs,Status)~ IPY + SP, dist = "weibull", data = fullset)
+m4_fs = survreg(Surv(Yrs,Status)~ IPY + SP, dist = "lognormal", data = fullset)
 summary(m4_fs)
 ```
 
 ```{r}
-m5_fs = survreg(Surv(Yrs,Status)~ SP, dist = "weibull", data = fullset)
+m5_fs = survreg(Surv(Yrs,Status)~ SP, dist = "lognormal", data = fullset)
 summary(m5_fs)
 ```
 
 ```{r}
-m5_fs = survreg(Surv(IP,Status)~ SP, dist = "weibull", data = fullset)
+m5_fs = survreg(Surv(IP,Status)~ SP, dist = "lognormal", data = fullset)
 summary(m5_fs)
 ```
 
@@ -686,3 +686,36 @@ plot(km_draft, lty = 1:2)
 m_draft = survreg(Surv(IP,Status)~Overall_Pick, dist = "weibull", data = fullset_draft)
 summary(m_draft)
 ```
+
+
+
+```{r}
+m_draft = survreg(Surv(IP,Status)~Overall_Pick, dist = "lognormal", data = fullset_draft)
+summary(m_draft)
+```
+
+```{r}
+fullset_draft <- fullset_draft %>%
+  mutate(High_pick = ifelse(Overall_Pick < 151, 1, 0),
+         Round1_pick = ifelse(Overall_Pick < 31, 1, 0) )
+m_draft1 = survreg(Surv(IP,Status)~High_pick, dist = "lognormal", data = fullset_draft)
+summary(m_draft1)
+
+m_draft2 = survreg(Surv(IP,Status)~Round1_pick, dist = "lognormal", data = fullset_draft)
+summary(m_draft2)
+```
+
+
+
+```{r}
+fulldata_hand <- fullset_draft %>%
+  filter(Name != 'AaronBarrett',
+         Name != 'JeanMachi',
+         Name != 'TimHamulack',
+         Name != 'BenDiggins')
+  
+m_hand = survreg(Surv(IP,Status)~Handedness , dist = "lognormal", data = fulldata_hand)
+summary(m_hand)
+```
+
+1637,1027,1686,737
