@@ -285,6 +285,9 @@ statcast %>%
 
 statcast <- statcast %>% 
   mutate(Drop_MPH = FB_MPH - Offspeed_MPH)
+
+statcast <- statcast %>% 
+  mutate(IP_perYear = IP/Yrs)
 ```
 
 
@@ -696,13 +699,18 @@ summary(m_draft)
 
 ```{r}
 fullset_draft <- fullset_draft %>%
-  mutate(High_pick = ifelse(Overall_Pick < 151, 1, 0),
-         Round1_pick = ifelse(Overall_Pick < 31, 1, 0) )
+  mutate(High_pick = ifelse(Overall_Pick < 61, 1, 0),
+         Round1_pick = ifelse(Overall_Pick < 31, 1, 0),
+         First10_pick = ifelse(Overall_Pick < 301, 1, 0))
+
 m_draft1 = survreg(Surv(IP,Status)~High_pick, dist = "lognormal", data = fullset_draft)
 summary(m_draft1)
 
 m_draft2 = survreg(Surv(IP,Status)~Round1_pick, dist = "lognormal", data = fullset_draft)
 summary(m_draft2)
+
+m_draft3 = survreg(Surv(IP,Status)~First10_pick, dist = "lognormal", data = fullset_draft)
+summary(m_draft3)
 ```
 
 
@@ -719,6 +727,84 @@ summary(m_hand)
 
 m_hand1 = survreg(Surv(IP,Status)~Handedness * SP, dist = "lognormal", data = fulldata_hand)
 summary(m_hand1)
+
 ```
 
-1637,1027,1686,737
+
+```{r}
+coxph(Surv(IP,Status)~Handedness * SP, data = fulldata_hand)
+```
+
+
+## Pitcher Type
+
+### coxph
+```{r}
+coxph(Surv(IP,Status)~ FB_Primary, data = statcast_SP)
+
+coxph(Surv(IP,Status)~ FB_Primary, data = statcast_RP)
+```
+
+### parametric
+```{r}
+survreg(Surv(IP,Status)~FB_Primary, dist = "weibull", data = statcast_SP)
+```
+
+```{r}
+CS = -log( 1 - pweibull( statcast_SP$IP , shape = 1/(0.9730123), scale = exp(7.1599710 - 0.1657366*statcast_SP$FB_Primary) ))
+
+CoxSnell( CS , statcast_SP$Status )
+```
+
+
+
+```{r}
+survreg(Surv(IP,Status)~FB_Primary, dist = "lognormal", data = statcast_SP)
+```
+
+```{r}
+CS = -log( 1 - plnorm( statcast_SP$IP , meanlog = 6.688716 - 0.169153, sdlog = 1.339625) )
+
+CoxSnell( CS , statcast_SP$Status )
+```
+
+
+```{r}
+AIC_w = 2*(3-(-2927.8))
+AIC_w
+```
+
+```{r}
+AIC_lnorm = 2*(3-(-2930.9))
+AIC_lnorm
+```
+
+
+```{r}
+coxph(Surv(IP,Status)~K9*FB_Primary, data = statcast_SP)
+```
+
+
+
+
+```{r}
+ipy_w = survreg(Surv(IP,Status)~IP_perYear, dist = "weibull", data = statcast_SP)
+summary(ipy_w)
+```
+
+
+```{r}
+ipy_logn = survreg(Surv(IP,Status)~IP_perYear, dist = "lognormal", data = statcast_SP)
+summary(ipy_logn)
+```
+
+```{r}
+ipy_w_rp = survreg(Surv(IP,Status)~IP_perYear, dist = "weibull", data = statcast_RP)
+summary(ipy_w)
+```
+
+
+```{r}
+ipy_logn_rp = survreg(Surv(IP,Status)~IP_perYear, dist = "lognormal", data = statcast_RP)
+summary(ipy_logn)
+```
