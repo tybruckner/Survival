@@ -21,7 +21,10 @@ library(tidyverse)
 ```
 
 
-## Baseball Reference Data
+## Baseball Reference 
+
+
+### Data
 ```{r}
 cumulative22 = read.csv("2022_cumulative.csv", encoding="UTF-8")
 cumulative21 = read.csv("2021_cumulative.csv", encoding="UTF-8")
@@ -84,7 +87,7 @@ joinall <- joinall %>%
 ```
 
 
-## Baseball Reference Cleaning
+### Cleaning
 ```{r}
 joinall <- joinall %>%
   rename(ERA_plus = `ERA.`,
@@ -140,6 +143,8 @@ joinall <- joinall %>%
          IP > 10)
 ```
 
+
+### Variable Addition
 ```{r}
 joinall <- joinall %>% 
   mutate(SP = ifelse(GS > 5, 1,0))
@@ -148,13 +153,17 @@ joinall %>%
   count(SP == 0)
 ```
 
-## Baseball Savant Data
+
+## Baseball Savant
+
+
+### Data
 ```{r}
 savant = read.csv("savant.csv")
 ```
 
 
-## Baseball Savant Cleaning
+### Cleaning
 ```{r}
 savant <- savant %>% 
   select(-X.first_name,
@@ -226,7 +235,31 @@ savant_avg$Name = str_remove_all(savant_avg$Name," ")
 ```
 
 
-## Dataset Joining
+## Draft 
+
+
+### Data
+```{r}
+draft = read.csv("Draft.csv",encoding="UTF-8")
+```
+
+
+### Cleaning
+```{r}
+draft <- draft %>% 
+  mutate(Name = name_first_last,
+         Handedness = throws,
+         Overall_Pick = overall,
+         Round = round_desc) %>% 
+  select(Name,Overall_Pick,Handedness,Round)
+
+draft$Name = str_replace_all(draft$Name,"\\.", " ")
+
+draft$Name = str_remove_all(draft$Name," ")
+```
+
+
+## Fullset
 ```{r}
 fullset <- left_join(joinall, 
                     savant_avg,
@@ -235,9 +268,18 @@ fullset <- left_join(joinall,
 fullset
 ```
 
+
+### Variable Addition
+```{r}
+fullset <- fullset %>%
+  mutate(IP_perYear = IP/Yrs)
+```
+
+
+## Fullset Draft
 ```{r}
 fullset_draft <- inner_join(fullset, 
-                    Draft,
+                    draft,
                     by = "Name")
 
 fullset_draft <- fullset_draft %>% distinct(Name, .keep_all = TRUE)
@@ -249,6 +291,17 @@ fullset_draft <- fullset_draft %>%
          Name != 'BenDiggins')
 ```
 
+
+### Variable Addition
+```{r}
+fullset_draft <- fullset_draft %>%
+  mutate(High_pick = ifelse(Overall_Pick < 61, 1, 0),
+         Round1_pick = ifelse(Overall_Pick < 31, 1, 0),
+         First10_pick = ifelse(Overall_Pick < 301, 1, 0))
+```
+
+
+## Statcast
 ```{r}
 statcast <- inner_join(joinall,
                        savant_avg,
@@ -257,7 +310,7 @@ statcast
 ```
 
 
-## Variable Addition
+### Variable Addition
 ```{r}
 statcast <- statcast %>% 
   mutate(FB_Primary = ifelse(FB_Rate > 57.7, 1, 0))
@@ -270,14 +323,6 @@ statcast <- statcast %>%
 
 statcast <- statcast %>% 
   mutate(IP_perYear = IP/Yrs)
-
-fullset <- fullset %>%
-  mutate(IPY = IP/Yrs)
-
-fullset_draft <- fullset_draft %>%
-  mutate(High_pick = ifelse(Overall_Pick < 61, 1, 0),
-         Round1_pick = ifelse(Overall_Pick < 31, 1, 0),
-         First10_pick = ifelse(Overall_Pick < 301, 1, 0))
 ```
 
 
