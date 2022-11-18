@@ -713,6 +713,16 @@ m_draft3 = survreg(Surv(IP,Status)~First10_pick, dist = "lognormal", data = full
 summary(m_draft3)
 ```
 
+```{r}
+m_draft11 = survreg(Surv(IP,Status)~High_pick, dist = "weibull", data = fullset_draft)
+summary(m_draft11)
+
+m_draft22 = survreg(Surv(IP,Status)~Round1_pick, dist = "weibull", data = fullset_draft)
+summary(m_draft22)
+
+m_draft33 = survreg(Surv(IP,Status)~First10_pick, dist = "weibull", data = fullset_draft)
+summary(m_draft33)
+```
 
 
 ```{r}

@@ -248,10 +248,10 @@ draft = read.csv("Draft.csv",encoding="UTF-8")
 ```{r}
 draft <- draft %>% 
   mutate(Name = name_first_last,
-         Handedness = throws,
+         Throws = throws,
          Overall_Pick = overall,
          Round = round_desc) %>% 
-  select(Name,Overall_Pick,Handedness,Round)
+  select(Name,Overall_Pick,Throws,Round)
 
 draft$Name = str_replace_all(draft$Name,"\\.", " ")
 
@@ -283,21 +283,15 @@ fullset_draft <- inner_join(fullset,
                     by = "Name")
 
 fullset_draft <- fullset_draft %>% distinct(Name, .keep_all = TRUE)
-
-fullset_draft <- fullset_draft %>%
-  filter(Name != 'AaronBarrett',
-         Name != 'JeanMachi',
-         Name != 'TimHamulack',
-         Name != 'BenDiggins')
 ```
 
 
 ### Variable Addition
 ```{r}
 fullset_draft <- fullset_draft %>%
-  mutate(High_pick = ifelse(Overall_Pick < 61, 1, 0),
-         Round1_pick = ifelse(Overall_Pick < 31, 1, 0),
-         First10_pick = ifelse(Overall_Pick < 301, 1, 0))
+  mutate(Day1_Pick = ifelse(Overall_Pick < 61, 1, 0),
+         Round1_Pick = ifelse(Overall_Pick < 31, 1, 0),
+         First10_Pick = ifelse(Overall_Pick < 301, 1, 0))
 ```
 
 
@@ -319,16 +313,44 @@ statcast %>%
   count(FB_Primary)
 
 statcast <- statcast %>% 
+  mutate(Breaking_Primary = ifelse(Breaking_Rate > 28.1, 1, 0))
+
+statcast %>% 
+  count(Breaking_Primary)
+
+statcast <- statcast %>% 
   mutate(Drop_MPH = FB_MPH - Offspeed_MPH)
 
 statcast <- statcast %>% 
   mutate(IP_perYear = IP/Yrs)
+
+statcast_SP <- statcast %>% 
+  filter(SP == 1)
+
+statcast_RP <- statcast %>% 
+  filter(SP == 0)
+```
+
+
+
+## Handedness
+```{r}
+handedness <- fullset_draft %>%
+  filter(Name != 'AaronBarrett',
+         Name != 'JeanMachi',
+         Name != 'TimHamulack',
+         Name != 'BenDiggins')
 ```
 
 
 ## Final Models
 
 ### Difference Between SP and RP
+```{r}
+fullset %>% 
+  count(SP == 1)
+```
+
 ```{r}
 km_position = survfit(Surv(IP,Status)~SP, conf.type = "plain", data = fullset)
 
@@ -337,6 +359,158 @@ plot(km_position, lty = 1:2)
 
 ```{r}
 survdiff(Surv(IP,Status)~SP, data = fullset)
+```
+
+> Conclusion : Because our p-value is incredibly small, there is enough evidence to reject the null hypothesis and further conclude that for some time points t, there is a difference in the predicted career length of a MLB pitcher dependent on whether they are a Starting Pitcher or a Relief Pitcher.
+
+
+### Statcast Variable Importance/Choosing a Parametric Distribution
+```{r}
+CoxSnell = function(cs,status,xlim=NULL,ylim=NULL)
+{
+kmcs = survfit( Surv(jitter(cs,amount=(max(cs)-min(cs))/1000),status) ~ 1 )$surv
+
+plot( log(-log(kmcs)) ~ sort(log(cs)) ,
+      xlab="log(Cox-Snell)", ylab="log(-log(S(Cox-Snell)))", xlim=xlim, ylim=ylim )
+
+abline(0,1,col='red')
+}
+```
+
+```{r}
+survreg(Surv(IP,Status)~FB_Rate + FB_MPH + FB_Spin, dist = "weibull", data = statcast_SP)
+```
+
+```{r}
+CS = -log( 1 - pweibull( statcast_SP$IP , shape = 1/(0.9812908), scale = exp(4.671356890 - 0.005023827*statcast_SP$FB_Rate + 0.005257949*statcast_SP$FB_MPH + 0.001011687*statcast_SP$FB_Spin) ))
+
+CoxSnell( CS , statcast_SP$Status )
+```
+
+```{r}
+survreg(Surv(IP,Status)~FB_Rate + FB_MPH + FB_Spin, dist = "lognormal", data = statcast_SP)
+```
+
+```{r}
+CS = -log( 1 - plnorm( statcast_SP$IP , sdlog = 1.346779, meanlog = 0.907028291 - 0.006360853*statcast_SP$FB_Rate + 0.040217193*statcast_SP$FB_MPH + 0.001084374*statcast_SP$FB_Spin ))
+
+CoxSnell( CS , statcast_SP$Status )
+```
+
+```{r}
+AIC_w = 2*(5-(-2923.8))
+AIC_w
+```
+
+```{r}
+AIC_lnorm = 2*(5-(-2924.6))
+AIC_lnorm
+```
+
+> For SP and FB, lognormal is preferred. These calculations(CS Resids and AIC) were done before making each parametric assumption for the following models.
+
+```{r}
+SP_FB = survreg(Surv(IP,Status)~FB_Rate + FB_MPH + FB_Spin, dist = "lognormal", data = statcast_SP)
+summary(SP_FB)
+```
+
+```{r}
+SP_Breaking = survreg(Surv(IP,Status)~Breaking_Rate + Breaking_MPH + Breaking_Spin, dist = "weibull", data = statcast_SP)
+summary(SP_Breaking)
+```
+
+```{r}
+SP_Offspeed = survreg(Surv(IP,Status)~Offspeed_Rate + Offspeed_MPH + Offspeed_Spin, dist = "weibull", data = statcast_SP)
+summary(SP_Offspeed)
+```
+
+```{r}
+RP_FB = survreg(Surv(IP,Status)~FB_Rate + FB_MPH + FB_Spin, dist = "weibull", data = statcast_RP)
+summary(RP_FB)
+```
+
+```{r}
+RP_Breaking = survreg(Surv(IP,Status)~Breaking_Rate + Breaking_MPH + Breaking_Spin, dist = "weibull", data = statcast_RP)
+summary(RP_Breaking)
+```
+
+```{r}
+RP_Offspeed = survreg(Surv(IP,Status)~Offspeed_Rate + Offspeed_MPH + Offspeed_Spin, dist = "weibull", data = statcast_RP)
+summary(RP_Offspeed)
+```
+
+
+### Handedness
+```{r}
+hand_logn = survreg(Surv(IP,Status)~Throws , dist = "lognormal", data = handedness)
+summary(hand_logn)
+```
+
+```{r}
+hand_w_int = survreg(Surv(IP,Status)~Throws * SP, dist = "weibull", data = handedness)
+summary(hand_w)
+```
+
+```{r}
+coxph(Surv(IP,Status)~Throws * SP, data = handedness)
+```
+
+
+### Pitcher Type
+```{r}
+coxph(Surv(IP,Status)~ FB_Primary, data = statcast_SP)
+
+coxph(Surv(IP,Status)~ FB_Primary, data = statcast_RP)
+```
+
+```{r}
+FBprimary_SP = survreg(Surv(IP,Status)~FB_Primary, dist = "weibull", data = statcast_SP)
+summary(FBprimary_SP)
+
+FBprimary_RP = survreg(Surv(IP,Status)~FB_Primary, dist = "weibull", data = statcast_RP)
+summary(FBprimary_RP)
+```
+
+```{r}
+msp = survreg(Surv(IP,Status)~FB_Primary + FB_MPH, dist = "lognormal", data = statcast_SP)
+summary(msp)
+
+mrp = survreg(Surv(IP,Status)~FB_Primary + FB_MPH, dist = "lognormal", data = statcast_RP)
+summary(mrp)
+```
+
+```{r}
+Breaking_primary_SP = survreg(Surv(IP,Status)~Breaking_Primary, dist = "weibull", data = statcast_SP)
+summary(Breaking_primary_SP)
+
+Breaking_primary_RP = survreg(Surv(IP,Status)~Breaking_Primary, dist = "weibull", data = statcast_RP)
+summary(Breaking_primary_RP)
+```
+
+```{r}
+coxph(Surv(IP,Status)~K9*FB_Primary, data = statcast_SP)
+```
+
+
+### Draft Status
+```{r}
+draft_overall = survreg(Surv(IP,Status)~Overall_Pick, dist = "weibull", data = fullset_draft)
+summary(draft_overall)
+```
+
+```{r}
+draft_round1 = survreg(Surv(IP,Status)~Round1_Pick, dist = "lognormal", data = fullset_draft)
+summary(draft_round1)
+
+draft_day1 = survreg(Surv(IP,Status)~Day1_Pick, dist = "lognormal", data = fullset_draft)
+summary(draft_day1)
+
+draft_first10 = survreg(Surv(IP,Status)~First10_Pick, dist = "lognormal", data = fullset_draft)
+summary(draft_first10)
+```
+
+```{r}
+coxph(Surv(IP,Status)~Round1_Pick, data = fullset_draft)
 ```
 
 
