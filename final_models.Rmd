@@ -264,8 +264,6 @@ draft$Name = str_remove_all(draft$Name," ")
 fullset <- left_join(joinall, 
                     savant_avg,
                     by = "Name")
-
-fullset
 ```
 
 
@@ -300,7 +298,6 @@ fullset_draft <- fullset_draft %>%
 statcast <- inner_join(joinall,
                        savant_avg,
                        by = "Name")
-statcast
 ```
 
 
@@ -448,7 +445,7 @@ summary(hand_logn)
 
 ```{r}
 hand_w_int = survreg(Surv(IP,Status)~Throws * SP, dist = "weibull", data = handedness)
-summary(hand_w)
+summary(hand_w_int)
 ```
 
 ```{r}
