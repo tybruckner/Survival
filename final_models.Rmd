@@ -328,4 +328,13 @@ statcast <- statcast %>%
 
 ## Final Models
 
+### Difference Between SP and RP
+```{r}
+km_position = survfit(Surv(IP,Status)~SP, conf.type = "plain", data = fullset)
 
+plot(km_position, lty = 1:2)
+```
+
+```{r}
+survdiff(Surv(IP,Status)~SP, data = fullset)
+```
