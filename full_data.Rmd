@@ -736,6 +736,7 @@ coxph(Surv(IP,Status)~Handedness * SP, data = fulldata_hand)
 ```
 
 
+
 ## Pitcher Type
 
 ### coxph
@@ -748,6 +749,8 @@ coxph(Surv(IP,Status)~ FB_Primary, data = statcast_RP)
 ### parametric
 ```{r}
 survreg(Surv(IP,Status)~FB_Primary, dist = "weibull", data = statcast_SP)
+survreg(Surv(IP,Status)~FB_Primary, dist = "weibull", data = statcast_RP)
+
 ```
 
 ```{r}
@@ -759,7 +762,14 @@ CoxSnell( CS , statcast_SP$Status )
 
 
 ```{r}
-survreg(Surv(IP,Status)~FB_Primary, dist = "lognormal", data = statcast_SP)
+survreg(Surv(IP,Status)~FB_Primary , dist = "lognormal", data = statcast_SP)
+survreg(Surv(IP,Status)~FB_Primary , dist = "lognormal", data = statcast_RP)
+
+d1 = survreg(Surv(IP,Status)~FB_Primary + FB_MPH, dist = "lognormal", data = statcast_SP)
+d2 = survreg(Surv(IP,Status)~FB_Primary + FB_MPH, dist = "lognormal", data = statcast_RP)
+
+summary(d1)
+summary(d2)
 ```
 
 ```{r}
