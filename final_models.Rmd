@@ -339,6 +339,11 @@ handedness <- fullset_draft %>%
          Name != 'BenDiggins')
 ```
 
+## Statcast TVC
+```{r}
+statcastTVC = read.csv("statcastTVC.csv")
+```
+
 
 ## Final Models
 
