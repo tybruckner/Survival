@@ -147,10 +147,13 @@ joinall <- joinall %>%
 ### Variable Addition
 ```{r}
 joinall <- joinall %>% 
-  mutate(SP = ifelse(GS > 5, 1,0))
+  mutate(SP = ifelse(GS > 5, 1,0)) %>%
+  mutate(WHIP_Cat = cut( WHIP, breaks=c(0,1,1.2,1.4,1.6, 100)  , labels = c("Excellent", "Good", "Average", "Poor", "Awful"), right = FALSE))
 
 joinall %>% 
   count(SP == 0)
+
+
 ```
 
 
@@ -270,7 +273,8 @@ fullset <- left_join(joinall,
 ### Variable Addition
 ```{r}
 fullset <- fullset %>%
-  mutate(IP_perYear = IP/Yrs)
+  mutate(IP_perYear = IP/Yrs) %>%
+  mutate(WHIP_Cat = cut( WHIP, breaks=c(0,1,1.2,1.4,1.6, 100)  , labels = c("Excellent", "Good", "Average", "Poor", "Awful"), right = FALSE))
 ```
 
 
@@ -515,4 +519,21 @@ summary(draft_first10)
 coxph(Surv(IP,Status)~Round1_Pick, data = fullset_draft)
 ```
 
+
+
+
+```{r}
+coxph(Surv(IP,Status)~Round1_Pick + strata(WHIP_Cat), data = fullset_draft)
+
+```
+
+
+```{r}
+coxph(Surv(IP, Status)~ FB_Primary + strata(WHIP_Cat), data = statcast_SP )
+```
+
+```{r}
+coxph(Surv(IP, Status)~ FB_Primary + strata(WHIP_Cat), data = statcast_RP )
+
+```
 
