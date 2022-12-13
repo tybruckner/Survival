@@ -595,3 +595,17 @@ summary(RP_Breakings)
 RP_Offspeeds = survreg(Surv(IP,Status)~Offspeed_Rate + Offspeed_MPH + Offspeed_Spin + strata(WHIP_Cat), dist = "weibull", data = statcast_RP)
 summary(RP_Offspeeds)
 ```
+
+
+
+```{r}
+draft_round1s = survreg(Surv(IP,Status)~Round1_Pick + strata(WHIP_Cat), dist = "lognormal", data = fullset_draft)
+summary(draft_round1s)
+
+draft_day1s = survreg(Surv(IP,Status)~Day1_Pick + strata(WHIP_Cat), dist = "lognormal", data = fullset_draft)
+summary(draft_day1s)
+
+draft_first10s = survreg(Surv(IP,Status)~First10_Pick + strata(WHIP_Cat), dist = "lognormal", data = fullset_draft)
+summary(draft_first10s)
+```
+
