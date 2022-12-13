@@ -529,11 +529,69 @@ coxph(Surv(IP,Status)~Round1_Pick + strata(WHIP_Cat), data = fullset_draft)
 
 
 ```{r}
-coxph(Surv(IP, Status)~ FB_Primary + strata(WHIP_Cat), data = statcast_SP )
+cpts  = coxph(Surv(IP, Status)~ FB_Primary + strata(WHIP_Cat), data = statcast_SP )
+cpts
 ```
 
 ```{r}
 coxph(Surv(IP, Status)~ FB_Primary + strata(WHIP_Cat), data = statcast_RP )
+cptr = coxph(Surv(IP, Status)~ FB_Primary + strata(WHIP_Cat), data = statcast_RP )
 
 ```
 
+```{r}
+cox.zph(cpts)
+cox.zph(cptr)
+```
+
+```{r}
+plot(cox.zph(cpts), xlab = "Innings", ylab = "Starters by Pitcher Type")
+plot(cox.zph(cptr), xlab = "Innings", ylab = "Relievers by Pitcher Type")
+```
+
+```{r}
+kmts = survfit(Surv(IP, Status)~ FB_Primary + strata(WHIP_Cat), data = statcast_SP)
+kmtr = survfit(Surv(IP, Status)~ FB_Primary + strata(WHIP_Cat), data = statcast_RP)
+
+# plot( kmts , fun='cloglog' , mark.time=FALSE ,conf.int = FALSE,  col=1:5 )
+# plot( kmtr , fun='cloglog' , mark.time=FALSE ,conf.int = FALSE, col=1:5)
+
+
+```
+
+
+
+## New Statcast with Strata
+
+
+> For SP and FB, lognormal is preferred. These calculations(CS Resids and AIC) were done before making each parametric assumption for the following models.
+
+```{r}
+SP_FBs = survreg(Surv(IP,Status)~FB_Rate + FB_MPH + FB_Spin + strata(WHIP_Cat), dist = "lognormal", data = statcast_SP)
+summary(SP_FBs)
+```
+
+```{r}
+SP_Breakings = survreg(Surv(IP,Status)~Breaking_Rate + Breaking_MPH + Breaking_Spin + strata(WHIP_Cat), dist = "weibull", data = statcast_SP)
+summary(SP_Breakings)
+```
+
+```{r}
+SP_Offspeeds = survreg(Surv(IP,Status)~Offspeed_Rate + Offspeed_MPH + Offspeed_Spin + strata(WHIP_Cat), dist = "weibull", data = statcast_SP)
+summary(SP_Offspeeds)
+```
+
+```{r}
+RP_FBs = survreg(Surv(IP,Status)~FB_Rate + FB_MPH + FB_Spin + strata(WHIP_Cat), dist = "weibull", data = statcast_RP)
+summary(RP_FBs)
+```
+
+```{r}
+RP_Breakings = survreg(Surv(IP,Status)~Breaking_Rate + Breaking_MPH + Breaking_Spin + strata(WHIP_Cat), dist = "weibull", data = statcast_RP)
+summary(RP_Breakings)
+```
+
+```{r}
+RP_Offspeeds = survreg(Surv(IP,Status)~Offspeed_Rate + Offspeed_MPH + Offspeed_Spin + strata(WHIP_Cat), dist = "weibull", data = statcast_RP)
+summary(RP_Offspeeds)
+```
