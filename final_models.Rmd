@@ -567,8 +567,12 @@ kmtr = survfit(Surv(IP, Status)~ FB_Primary + strata(WHIP_Cat), data = statcast_
 > For SP and FB, lognormal is preferred. These calculations(CS Resids and AIC) were done before making each parametric assumption for the following models.
 
 ```{r}
-SP_FBs = survreg(Surv(IP,Status)~FB_Rate + FB_MPH + FB_Spin + strata(WHIP_Cat), dist = "lognormal", data = statcast_SP)
+SP_FBs = survreg(Surv(IP,Status)~FB_Rate + FB_MPH + FB_Spin + WHIP_Cat, dist = "lognormal", data = statcast_SP)
 summary(SP_FBs)
+
+
+SP_FBs1 = survreg(Surv(IP,Status)~FB_Rate + FB_MPH + FB_Spin + WHIP, dist = "lognormal", data = statcast_SP)
+summary(SP_FBs1)
 ```
 
 ```{r}
@@ -607,5 +611,19 @@ summary(draft_day1s)
 
 draft_first10s = survreg(Surv(IP,Status)~First10_Pick + strata(WHIP_Cat), dist = "lognormal", data = fullset_draft)
 summary(draft_first10s)
+```
+
+```{r}
+coxph(Surv(IP,Status)~FB_Rate + FB_MPH + FB_Spin, data = statcast_SP)
+```
+
+```{r}
+handedness %>%
+  filter(SP == 1) %>% 
+  count(Throws == "L")
+
+handedness %>%
+  filter(SP == 0) %>% 
+  count(Throws == "L")
 ```
 
